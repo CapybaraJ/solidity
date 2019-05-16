@@ -277,6 +277,21 @@ void IRGeneratorForStatements::endVisit(UnaryOperation const& _unaryOperation)
 		}
 		else if (op == Token::BitNot)
 			appendSimpleUnaryOperation(_unaryOperation, _unaryOperation.subExpression());
+		else if (op == Token::Add)
+		{
+			// Nothing to do
+		}
+		else if (op == Token::Sub)
+		{
+			IntegerType const& intType = *dynamic_cast<IntegerType const*>(&resultType);
+			solAssert(intType.isSigned(), "Expected signed type!");
+
+			defineExpression(_unaryOperation) <<
+				m_utils.negateNumberCheckedFunction(intType) <<
+				"(" <<
+				m_context.variable(_unaryOperation.subExpression()) <<
+				")\n";
+		}
 		else
 			solUnimplementedAssert(false, "Unary operator not yet implemented");
 	}
